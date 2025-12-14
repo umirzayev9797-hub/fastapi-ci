@@ -38,7 +38,44 @@ import sys
 
 
 def decrypt(encryption: str) -> str:
-    ...
+    result = []
+    """
+        Расшифровывает сообщение, закодированное следующим образом:
+
+        - символ без точки после него сохраняется;
+        - символ с одной точкой после него сохраняется, точка удаляется;
+        - символ с двумя и более точками после него удаляется вместе с точками;
+        - одиночные точки, не относящиеся к символу, игнорируются.
+
+        :param encrypted_text: зашифрованная строка
+        :return: расшифрованная строка
+        """
+    decrypted_chars: list[str] = []
+    position: int = 0
+    text_length: int = len(encryption)
+
+    while position < text_length:
+        current_char = encryption[position]
+
+        # Точка сама по себе не является символом
+        if current_char == '.':
+            position += 1
+            continue
+
+        # Подсчитываем количество точек после символа
+        dot_count: int = 0
+        next_position: int = position + 1
+
+        while next_position < text_length and encryption[next_position] == '.':
+            dot_count += 1
+            next_position += 1
+
+        if dot_count < 2:
+            decrypted_chars.append(current_char)
+
+        position = next_position if dot_count > 0 else position + 1
+
+    return ''.join(decrypted_chars)
 
 
 if __name__ == '__main__':
