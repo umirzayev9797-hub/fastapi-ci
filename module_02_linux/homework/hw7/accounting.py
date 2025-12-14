@@ -16,22 +16,66 @@ from flask import Flask
 
 app = Flask(__name__)
 
-storage = {}
+# Хранилище расходов:
+# {
+#   year: {
+#       'total': int,
+#       month: {
+#           'total': int
+#       }
+#   }
+# }
+storage: dict[int, dict] = {}
 
 
 @app.route("/add/<date>/<int:number>")
 def add(date: str, number: int):
-    ...
+    """
+       Сохраняет информацию о расходе за указанную дату.
+
+       :param date: дата в формате YYYYMMDD
+       :param number: сумма расхода в рублях
+       :return: подтверждающее сообщение
+       """
+    year: int = int(date[:4])
+    month: int = int(date[4:6])
+
+    year_data = storage.setdefault(year, {'total': 0})
+    month_data = year_data.setdefault(month, {'total': 0})
+
+    year_data['total'] += number
+    month_data['total'] += number
+
+    return 'Расход сохранён'
 
 
 @app.route("/calculate/<int:year>")
 def calculate_year(year: int):
-    ...
+    """
+       Возвращает суммарные расходы за указанный год.
+
+       :param year: год
+       :return: сумма расходов
+       """
+    if year not in storage:
+        return '0'
+
+    return str(storage[year]['total'])
 
 
 @app.route("/calculate/<int:year>/<int:month>")
 def calculate_month(year: int, month: int):
-    ...
+    """
+       Возвращает суммарные расходы за указанные год и месяц.
+
+       :param year: год
+       :param month: месяц
+       :return: сумма расходов
+       """
+    if year not in storage or month not in storage[year]:
+        return '0'
+
+    return str(storage[year][month]['total'])
 
 
 if __name__ == "__main__":
