@@ -25,15 +25,45 @@ hello wo
 /home/user/module_2/docs/simple.txt 12
 hello world!
 """
-
-from flask import Flask
+import os
+from flask import abort, Flask
 
 app = Flask(__name__)
 
 
 @app.route("/head_file/<int:size>/<path:relative_path>")
 def head_file(size: int, relative_path: str):
-    ...
+    """
+        Endpoint возвращает превью файла: первые size символов.
+
+        Формат ответа:
+        <b>abs_path</b> result_size<br>
+        result_text
+
+        :param size: количество символов для чтения
+        :param relative_path: относительный путь к файлу
+        :return: HTML-страница с превью файла
+        """
+    if size < 0:
+        abort(400, description='SIZE должен быть неотрицательным')
+
+    abs_path: str = os.path.abspath(relative_path)
+
+    if not os.path.isfile(abs_path):
+        abort(404, description='Файл не найден')
+
+    try:
+        with open(abs_path, 'r', encoding='utf-8') as file:
+            result_text: str = file.read(size)
+    except OSError:
+        abort(500, description='Не удалось прочитать файл')
+
+    result_size: int = len(result_text)
+
+    return (
+        f'<b>{abs_path}</b> {result_size}<br>'
+        f'{result_text}'
+    )
 
 
 if __name__ == "__main__":
