@@ -1,0 +1,8 @@
+test_nested_contexts (__main__.RedirectManagerTests.test_nested_contexts) ... ok
+test_redirect_stdout_and_stderr (__main__.RedirectManagerTests.test_redirect_stdout_and_stderr) ... ok
+test_redirect_stdout_only (__main__.RedirectManagerTests.test_redirect_stdout_only) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.001s
+
+OK
