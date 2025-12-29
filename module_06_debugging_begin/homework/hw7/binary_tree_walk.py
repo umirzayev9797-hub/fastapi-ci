@@ -18,6 +18,7 @@ def restore_tree(path_to_log_file: str) -> BinaryTreeNode:
 import itertools
 import logging
 import random
+import re
 from collections import deque
 from dataclasses import dataclass
 from typing import Optional
@@ -71,7 +72,44 @@ def get_tree(max_depth: int, level: int = 1) -> Optional[BinaryTreeNode]:
 
 
 def restore_tree(path_to_log_file: str) -> BinaryTreeNode:
-    pass
+    """
+    Восстанавливает бинарное дерево по логам BFS.
+    Логи имеют формат: "INFO:Visiting <BinaryTreeNode[val]>"
+    Гарантируется уникальность значений.
+    """
+    node_map = {}
+    parent_queue = deque()
+    root = None
+
+    with open(path_to_log_file, "r", encoding="utf-8") as f:
+        for line in f:
+            m = re.search(r"<BinaryTreeNode\[(\d+)\]>", line)
+            if not m:
+                continue
+            val = int(m.group(1))
+            node = BinaryTreeNode(val=val)
+            node_map[val] = node
+
+            if not root:
+                root = node
+                parent_queue.append(node)
+                continue
+
+            while parent_queue:
+                parent = parent_queue[0]
+                if not parent.left:
+                    parent.left = node
+                    break
+                elif not parent.right:
+                    parent.right = node
+                    parent_queue.popleft()
+                    break
+                else:
+                    parent_queue.popleft()
+
+            parent_queue.append(node)
+
+    return root
 
 
 if __name__ == "__main__":
@@ -81,5 +119,11 @@ if __name__ == "__main__":
         filename="walk_log_4.txt",
     )
 
+    # создаём дерево и логируем обход
     root = get_tree(7)
     walk(root)
+
+    # пример восстановления дерева из логов
+    restored_root = restore_tree("walk_log_4.txt")
+    print("Восстановленное дерево корень:", restored_root)
+
