@@ -9,9 +9,16 @@
 import logging
 import random
 from typing import List
+from datetime import datetime
 
+# --- настройка логгера ---
 logger = logging.getLogger(__name__)
-
+logging.basicConfig(
+    level=logging.DEBUG,
+    format="%(asctime)s | %(levelname)s | %(message)s",
+    datefmt="%H:%M:%S.%f",
+    handlers=[logging.FileHandler("measure_me.log", mode="w", encoding="utf-8")]
+)
 
 def get_data_line(sz: int) -> List[int]:
     try:
@@ -19,7 +26,6 @@ def get_data_line(sz: int) -> List[int]:
         return [random.randint(-(2 ** 31), 2 ** 31 - 1) for _ in range(sz)]
     finally:
         logger.debug("Leave get_data_line")
-
 
 def measure_me(nums: List[int]) -> List[List[int]]:
     logger.debug("Enter measure_me")
@@ -37,9 +43,7 @@ def measure_me(nums: List[int]) -> List[List[int]]:
                 if s == target:
                     logger.debug(f"Found {target}")
                     results.append([nums[i], nums[left], nums[right]])
-                    logger.debug(
-                        f"Appended {[nums[i], nums[left], nums[right]]} to result"
-                    )
+                    logger.debug(f"Appended {[nums[i], nums[left], nums[right]]} to result")
                     while left < right and nums[left] == nums[left + 1]:
                         left += 1
                     while left < right and nums[right] == nums[right - 1]:
@@ -51,16 +55,25 @@ def measure_me(nums: List[int]) -> List[List[int]]:
                     left += 1
                 else:
                     logger.debug(f"Decrement right (left, right) = {left, right}")
-
                     right -= 1
 
     logger.debug("Leave measure_me")
-
     return results
 
-
 if __name__ == "__main__":
-    logging.basicConfig(level="DEBUG")
-    for it in range(15):
+    runs = 15
+    durations_ms = []
+
+    for _ in range(runs):
         data_line = get_data_line(10 ** 3)
+
+        # логирование времени выполнения measure_me
+        start_time = datetime.now()
         measure_me(data_line)
+        end_time = datetime.now()
+
+        duration = (end_time - start_time).total_seconds() * 1000  # миллисекунды
+        durations_ms.append(duration)
+
+    avg_time = sum(durations_ms) / len(durations_ms)
+    print(f"Среднее время выполнения measure_me: {avg_time:.3f} мс")
