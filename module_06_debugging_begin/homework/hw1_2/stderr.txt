@@ -1,0 +1,13 @@
+19:13:31 | INFO | password_checker | Вы пытаетесь аутентифицироваться в Skillbox
+19:13:31 | INFO | password_checker | Доступно 3 попытки ввода пароля
+19:13:31 | INFO | password_checker | Старт проверки пароля (input_and_check_password)
+19:13:57 | INFO | password_checker | Пароль неверный, хеш не совпал.
+19:13:57 | INFO | password_checker | Осталось попыток: 2
+19:13:57 | INFO | password_checker | Старт проверки пароля (input_and_check_password)
+19:14:16 | INFO | password_checker | Пароль неверный, хеш не совпал.
+19:14:16 | INFO | password_checker | Осталось попыток: 1
+19:14:16 | INFO | password_checker | Старт проверки пароля (input_and_check_password)
+19:14:43 | INFO | password_checker | Пароль содержит английское слово 'qwerty' → небезопасный.
+19:14:43 | WARNING | password_checker | Слишком слабый пароль по новым стандартам безопасности.
+19:14:43 | INFO | password_checker | Осталось попыток: 0
+19:14:43 | ERROR | password_checker | Трижды введён неверный пароль!
