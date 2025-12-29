@@ -18,11 +18,11 @@
 import getpass
 import hashlib
 import logging
+import re
 
-# 1. Создаём логгер
+# 1. Настройка логгера по требованиям
 logger = logging.getLogger("password_checker")
 
-# 2. Конфигурируем logging
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
@@ -32,44 +32,53 @@ logging.basicConfig(
     ]
 )
 
-# Список распространённых английских слов для проверки
-ENGLISH_WORDS = {
-    "password", "admin", "user", "login", "qwerty", "hello", "world",
-    "letmein", "welcome", "monkey", "dragon", "iloveyou", "football",
-    "baseball", "master", "superman", "trustno1", "abc123"
-}
+# 2. Предобработка слов английского языка из словаря Linux
+def load_english_words() -> set[str]:
+    words = set()
+    try:
+        with open("/usr/share/dict/words", "r", encoding="latin-1", errors="ignore") as f:
+            for line in f:
+                w = line.strip()
+                if len(w) > 4:
+                    words.add(w.lower())
+    except FileNotFoundError:
+        logger.critical("Системный словарь /usr/share/dict/words не найден!")
+        exit(1)
+    return words
+
+ENGLISH_DICT = load_english_words()
+logger.info(f"Словарь английских слов загружен ({len(ENGLISH_DICT)} слов длиной > 4)")
 
 
 def is_strong_password(password: str) -> bool:
     """
-    Проверяет пароль по новым стандартам:
-    пароль НЕ должен содержать английские слова.
+    Пароль считается сильным, если НЕ содержит слов английского языка длиной > 4 символов.
+    Регистр игнорируется.
+    Используется set для поиска → O(1) в среднем.
     """
-    pwd_lower = password.lower()
+    extracted_words = re.findall(r"[A-Za-z]+", password)
 
-    for word in ENGLISH_WORDS:
-        if word in pwd_lower:
-            logger.info(f"Пароль содержит английское слово '{word}' → небезопасный.")
+    for word in extracted_words:
+        w = word.lower()
+        if len(w) > 4 and w in ENGLISH_DICT:
+            logger.info(f"Найдено английское слово '{w}' в пароле → пароль слабый.")
             return False
 
     return True
 
 
 def input_and_check_password() -> bool:
-    logger.info("Старт проверки пароля (input_and_check_password)")
+    logger.info("Запрос ввода пароля")
     password: str = getpass.getpass()
 
-    # Проверка на пустой ввод
     if not password:
-        logger.warning("Введён пустой пароль.")
+        logger.warning("Введён пустой пароль!")
         return False
 
-    # Проверка силы пароля
     if not is_strong_password(password):
-        logger.warning("Слишком слабый пароль по новым стандартам безопасности.")
+        logger.warning("Пароль слишком слабый по стандартам безопасности!")
         return False
 
-    # Хеширование и сравнение
     try:
         hasher = hashlib.md5()
         hasher.update(password.encode("latin-1"))
@@ -77,21 +86,32 @@ def input_and_check_password() -> bool:
         target_hash = "098f6bcd4621d373cade4e832627b4f6"
 
         if hasher.hexdigest() == target_hash:
-            logger.info("Пароль верный, хеш совпал.")
+            logger.info("Пароль верный, аутентификация успешна.")
             return True
         else:
             logger.info("Пароль неверный, хеш не совпал.")
 
     except ValueError as ex:
-        logger.exception("Ошибка хеширования пароля!", exc_info=ex)
+        logger.exception("Ошибка при обработке пароля!", exc_info=ex)
 
     return False
 
 
 if __name__ == "__main__":
-    logger.info("Вы пытаетесь аутентифицироваться в Skillbox")
+    logger.debug("TEST DEBUG")  # не должен попасть (ниже INFO)
+    logger.info("TEST INFO")  # должен попасть
+    logger.warning("TEST WARNING")  # должен попасть
+    logger.error("TEST ERROR")  # должен попасть
+    logger.critical("TEST CRITICAL")  # должен попасть
+
+    try:
+        raise ValueError("TEST EXCEPTION")
+    except Exception as e:
+        logger.exception("Exception handler test", exc_info=e)
+
+    logger.info("Аутентификация в Skillbox")
     count_number: int = 3
-    logger.info(f"Доступно {count_number} попытки ввода пароля")
+    logger.info(f"Доступно {count_number} попытки")
 
     while count_number > 0:
         if input_and_check_password():
@@ -99,5 +119,6 @@ if __name__ == "__main__":
         count_number -= 1
         logger.info(f"Осталось попыток: {count_number}")
 
-    logger.error("Трижды введён неверный пароль!")
+    logger.error("Пароль трижды введён неверно!")
     exit(1)
+

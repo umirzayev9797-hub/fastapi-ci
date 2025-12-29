@@ -11,3 +11,17 @@
 19:14:43 | WARNING | password_checker | Слишком слабый пароль по новым стандартам безопасности.
 19:14:43 | INFO | password_checker | Осталось попыток: 0
 19:14:43 | ERROR | password_checker | Трижды введён неверный пароль!
+19:22:48 | INFO | password_checker | Словарь английских слов загружен (97770 слов длиной > 4)
+19:22:48 | INFO | password_checker | Аутентификация в Skillbox
+19:22:48 | INFO | password_checker | Доступно 3 попытки
+19:22:48 | INFO | password_checker | Запрос ввода пароля
+19:24:37 | WARNING | password_checker | Введён пустой пароль!
+19:24:37 | INFO | password_checker | Осталось попыток: 2
+19:24:37 | INFO | password_checker | Запрос ввода пароля
+19:24:48 | INFO | password_checker | Найдено английское слово 'admin' в пароле → пароль слабый.
+19:24:48 | WARNING | password_checker | Пароль слишком слабый по стандартам безопасности!
+19:24:48 | INFO | password_checker | Осталось попыток: 1
+19:24:48 | INFO | password_checker | Запрос ввода пароля
+19:24:58 | INFO | password_checker | Пароль неверный, хеш не совпал.
+19:24:58 | INFO | password_checker | Осталось попыток: 0
+19:24:58 | ERROR | password_checker | Пароль трижды введён неверно!
