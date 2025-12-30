@@ -26,17 +26,29 @@ logger.info('Сообщение')
 """
 
 import logging
-
-
+import json
+from datetime import datetime
 class JsonAdapter(logging.LoggerAdapter):
     def process(self, msg, kwargs):
-        new_message = msg
-        return new_message, kwargs
+        level = kwargs.get("extra", {}).get("level", self.logger.getEffectiveLevel())
+        level_name = logging.getLevelName(level)
+        safe_msg = json.dumps(msg, ensure_ascii=False)
+        record_time = datetime.now().strftime("%H:%M:%S")
+        return f'{{"time": "{record_time}", "level": "{level_name}", "message": {safe_msg}}}', {}
 
 
-if __name__ == '__main__':
-    logger = JsonAdapter(logging.getLogger(__name__))
-    logger.setLevel(logging.DEBUG)
-    logger.info('Сообщение')
+def configure_json_logging():
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(message)s",
+        handlers=[logging.FileHandler("skillbox_json_messages.log")]
+    )
+
+if __name__ == "__main__":
+    configure_json_logging()
+    base_logger = logging.getLogger(__name__)
+    logger = JsonAdapter(base_logger)
+
+    logger.info("Сообщение")
     logger.error('Кавычка)"')
     logger.debug("Еще одно сообщение")
