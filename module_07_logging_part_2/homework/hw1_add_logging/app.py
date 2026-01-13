@@ -6,6 +6,25 @@ from utils import string_to_operator
 logger = logging.getLogger(__name__)
 
 
+def configure_logging() -> None:
+    """
+    Configure application logging using OOP approach.
+    Logs are written to stdout.
+    """
+    handler = logging.StreamHandler(sys.stdout)
+
+    formatter = logging.Formatter(
+        fmt="%(levelname)s | %(name)s | %(asctime)s | %(lineno)d | %(message)s"
+    )
+
+    handler.setFormatter(formatter)
+
+    logging.basicConfig(
+        level=logging.DEBUG,
+        handlers=[handler]
+    )
+
+
 def calc(args):
     logger.debug("Arguments received: %s", args)
 
@@ -34,10 +53,7 @@ def calc(args):
 
 
 if __name__ == '__main__':
-    logging.basicConfig(
-        level=logging.DEBUG,
-        format="%(asctime)s | %(levelname)s | %(name)s | %(message)s"
-    )
+    configure_logging()
 
     # calc(sys.argv[1:])
     calc('2+3')
