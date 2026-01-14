@@ -1,0 +1,4 @@
+DEBUG | __main__ | 2026-01-13 16:53:10,406 | 29 | Arguments received: 2+3
+DEBUG | utils | 2026-01-13 16:53:10,406 | 30 | Operator '+' resolved to function <built-in function add>
+INFO | __main__ | 2026-01-13 16:53:10,406 | 51 | Result: 5.0
+INFO | __main__ | 2026-01-13 16:53:10,407 | 52 | 2.0 + 3.0 = 5.0

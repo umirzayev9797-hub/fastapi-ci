@@ -2,27 +2,29 @@ import sys
 import logging
 
 from utils import string_to_operator
+from logger_helper import LevelFileHandler
 
 logger = logging.getLogger(__name__)
 
 
 def configure_logging() -> None:
-    """
-    Configure application logging using OOP approach.
-    Logs are written to stdout.
-    """
-    handler = logging.StreamHandler(sys.stdout)
-
     formatter = logging.Formatter(
-        fmt="%(levelname)s | %(name)s | %(asctime)s | %(lineno)d | %(message)s"
+        "%(levelname)s | %(name)s | %(asctime)s | %(lineno)d | %(message)s"
     )
 
-    handler.setFormatter(formatter)
+    # stdout handler
+    stdout_handler = logging.StreamHandler(sys.stdout)
+    stdout_handler.setFormatter(formatter)
+
+    # multi-level file handler
+    file_handler = LevelFileHandler(log_dir="logs")
+    file_handler.setFormatter(formatter)
 
     logging.basicConfig(
         level=logging.DEBUG,
-        handlers=[handler]
+        handlers=[stdout_handler, file_handler]
     )
+
 
 
 def calc(args):
