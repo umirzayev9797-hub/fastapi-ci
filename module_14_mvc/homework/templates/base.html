@@ -1,18 +1,16 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>
-        Books
-    </title>
-    <link rel="stylesheet" type="text/css" href="../static/style.css">
-    <link href='http://fonts.googleapis.com/css?family=Bitter' rel='stylesheet' type='text/css'>
-
+    <title>Books Library</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-<h1>The greatest book library you have ever seen!</h1>
-<hr>
-
-{% block content %}{% endblock %}
-
+    <h1>The greatest book library you have ever seen!</h1>
+    <nav>
+        <a href="{{ url_for('all_books') }}">All Books</a> |
+        <a href="{{ url_for('get_books_form') }}">Add New Book</a>
+    </nav>
+    <hr>
+    {% block content %}{% endblock %}
 </body>
 </html>
