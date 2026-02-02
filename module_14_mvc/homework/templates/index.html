@@ -1,44 +1,20 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>
-        Books
-    </title>
-    <link rel="stylesheet" type="text/css" href="../static/style.css">
-    <link href='http://fonts.googleapis.com/css?family=Bitter' rel='stylesheet' type='text/css'>
-</head>
-<body>
+{% extends "base.html" %}
 
-<h1>Books:</h1>
-
-{% if books %}
+{% block content %}
+<h2>All Books:</h2>
 <table class="customTable">
     <thead>
-    <tr>
-        <th>ID</th>
-        <th>Title</th>
-        <th>Author</th>
-    </tr>
+        <tr><th>ID</th><th>Title</th><th>Author</th><th>Views</th></tr>
     </thead>
     <tbody>
-    {% for book in books %}
-    <tr>
-        <td>
-            {{ book.id }}
-        </td>
-        <td>
-            {{ book.title }}
-        </td>
-        <td>
-            {{ book.author }}
-        </td>
-    </tr>
-    {% endfor %}
+        {% for book in books %}
+        <tr>
+            <td>{{ book.id }}</td>
+            <td><a href="{{ url_for('book_details', book_id=book.id) }}">{{ book.title }}</a></td>
+            <td><a href="{{ url_for('books_by_author', author_name=book.author) }}">{{ book.author }}</a></td>
+            <td><strong>{{ book.views }}</strong></td>
+        </tr>
+        {% endfor %}
     </tbody>
 </table>
-{% else %}
-<h2> Sorry, no books in DB.</h2>
-{% endif %}
-
-</body>
-</html>
+{% endblock %}

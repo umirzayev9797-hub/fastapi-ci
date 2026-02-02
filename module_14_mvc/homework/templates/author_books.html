@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Books written by: {{ author_name }}</h2>
+
+{% if books %}
+<table class="customTable">
+    <thead>
+        <tr><th>ID</th><th>Title</th></tr>
+    </thead>
+    <tbody>
+        {% for book in books %}
+        <tr>
+            <td>{{ book.id }}</td>
+            <td>{{ book.title }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+    <p>This author has no books in our library.</p>
+{% endif %}
+
+<br>
+<a href="{{ url_for('all_books') }}">Back to all books</a>
+{% endblock %}

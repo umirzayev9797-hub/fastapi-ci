@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="form-style-10" style="background: #f9f9f9; padding: 20px; border-radius: 8px;">
+    <h1>Book Details</h1>
+    <p><strong>Title:</strong> {{ book.title }}</p>
+    <p><strong>Author:</strong> {{ book.author }}</p>
+    <p><strong>Total Views:</strong> <span style="color: #2a78ad; font-weight: bold;">{{ book.views }}</span></p>
+    
+    <hr>
+    <a href="{{ url_for('all_books') }}">Back to list</a>
+</div>
+{% endblock %}
