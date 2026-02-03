@@ -1,5 +1,5 @@
-from marshmallow import Schema, fields, post_load, ValidationError
-from models import Book, Author, get_author_by_id
+from marshmallow import Schema, fields, post_load
+from models import Author, Book
 
 class AuthorSchema(Schema):
     id = fields.Int(dump_only=True)
@@ -14,8 +14,9 @@ class AuthorSchema(Schema):
 class BookSchema(Schema):
     id = fields.Int(dump_only=True)
     title = fields.Str(required=True)
-    author_id = fields.Int(required=True)
+    author_id = fields.Int()
+    author = fields.Nested(AuthorSchema) # Для создания автора при добавлении книги
 
     @post_load
     def create_book(self, data, **kwargs):
-        return Book(**data)
+        return data
