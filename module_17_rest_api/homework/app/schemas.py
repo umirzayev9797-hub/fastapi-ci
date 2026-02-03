@@ -5,7 +5,7 @@ class AuthorSchema(Schema):
     id = fields.Int(dump_only=True)
     first_name = fields.Str(required=True)
     last_name = fields.Str(required=True)
-    middle_name = fields.Str()
+    middle_name = fields.Str(allow_none=True)
 
     @post_load
     def create_author(self, data, **kwargs):
@@ -18,6 +18,4 @@ class BookSchema(Schema):
 
     @post_load
     def create_book(self, data, **kwargs):
-        if not get_author_by_id(data['author_id']):
-            raise ValidationError(f"Author with id {data['author_id']} does not exist.")
         return Book(**data)
