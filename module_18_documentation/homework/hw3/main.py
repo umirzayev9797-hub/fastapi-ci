@@ -1,41 +1,44 @@
 import operator
 from flask import Flask
 from flask_jsonrpc import JSONRPC
+from typing import Union
 
 app = Flask(__name__)
+# Включаем browsable api для автоматической документации
 jsonrpc = JSONRPC(app, '/api', enable_web_browsable_api=True)
-
 
 @jsonrpc.method('calc.add')
 def add(a: float, b: float) -> float:
     """
-    Пример запроса:
-
-    $ curl -i -X POST -H "Content-Type: application/json; indent=4" \
-        -d '{
-            "jsonrpc": "2.0",
-            "method": "calc.add",
-            "params": {"a": 7.8, "b": 5.3},
-            "id": "1"
-        }' http://localhost:5000/api
-
-    Пример ответа:
-
-    HTTP/1.1 200 OK
-    Server: Werkzeug/2.2.2 Python/3.10.6
-    Date: Fri, 09 Dec 2022 19:00:09 GMT
-    Content-Type: application/json
-    Content-Length: 54
-    Connection: close
-
-    {
-      "id": "1",
-      "jsonrpc": "2.0",
-      "result": 13.1
-    }
+    Возвращает сумму двух чисел (a + b).
     """
     return operator.add(a, b)
 
+@jsonrpc.method('calc.subtract')
+def subtract(a: float, b: float) -> float:
+    """
+    Возвращает разность двух чисел (a - b).
+    """
+    return operator.sub(a, b)
+
+@jsonrpc.method('calc.multiply')
+def multiply(a: float, b: float) -> float:
+    """
+    Возвращает произведение двух чисел (a * b).
+    """
+    return operator.mul(a, b)
+
+@jsonrpc.method('calc.divide')
+def divide(a: float, b: float) -> Union[float, dict]:
+    """
+    Возвращает результат деления (a / b).
+    Если b = 0, возвращает ошибку.
+    """
+    if b == 0:
+        # Это вызовет корректный JSON-RPC Error ответ
+        raise ValueError("Division by zero")
+    return operator.truediv(a, b)
 
 if __name__ == '__main__':
-    app.run('0.0.0.0', debug=True)
+    # Используем порт 5000, как в твоем примере curl
+    app.run('0.0.0.0', port=5000, debug=True)

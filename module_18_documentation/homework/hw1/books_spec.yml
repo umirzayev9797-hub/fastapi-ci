@@ -1,0 +1,22 @@
+tags:
+  - Books
+summary: Создать новую книгу
+description: Создает книгу. Можно передать author_id или объект author.
+parameters:
+  - name: body
+    in: body
+    required: true
+    schema:
+      id: BookCreate
+      required: [title]
+      properties:
+        title: {type: string, example: "Капитанская дочка"}
+        author_id: {type: integer, example: 1}
+        author:
+          type: object
+          properties:
+            first_name: {type: string}
+            last_name: {type: string}
+responses:
+  201:
+    description: Книга успешно создана
