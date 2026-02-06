@@ -3,42 +3,36 @@ from db.database import engine, Base, SessionLocal
 from models.library import Author, Book, Student, ReceivingBook
 
 
-def test_new_logic():
-    Base.metadata.drop_all(bind=engine)  # Сбрасываем базу, чтобы применить ForeignKey
+def seed_data():
+    Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
-
     db = SessionLocal()
-    try:
-        # 1. Массовая вставка и связи
-        author = Author(name="Лев", surname="Толстой")
-        book1 = Book(name="Война и мир", release_date=datetime.date(1869, 1, 1))
-        book2 = Book(name="Анна Каренина", release_date=datetime.date(1877, 1, 1))
 
-        author.books.extend([book1, book2])
-        db.add(author)
+    # Авторы
+    a1 = Author(name="Лев", surname="Толстой")
+    a2 = Author(name="Александр", surname="Пушкин")
 
-        student = Student(name="Иван", surname="Иванов", phone="123", email="i@ex.com",
-                          average_score=4.8, scholarship=True)
-        db.add(student)
-        db.commit()
+    # Книги Толстого
+    b1 = Book(name="Война и мир", count=5, release_date=datetime.date(1869, 1, 1), author=a1)
+    b2 = Book(name="Анна Каренина", count=3, release_date=datetime.date(1877, 1, 1), author=a1)
+    b3 = Book(name="Смерть Ивана Ильича", count=2, release_date=datetime.date(1886, 1, 1), author=a1)
 
-        # 2. Выдача книги (AssociationProxy в действии)
-        rec = ReceivingBook(book=book1, student=student, date_of_issue=datetime.datetime.now())
-        db.add(rec)
-        db.commit()
+    # Книги Пушкина
+    b4 = Book(name="Евгений Онегин", count=10, release_date=datetime.date(1833, 1, 1), author=a2)
 
-        # Теперь мы можем получить книги студента напрямую!
-        print(f"Студент {student.full_name} взял книги: {[b.name for b in student.books]}")
+    # Студент
+    s = Student(name="Иван", surname="Иванов", phone="1", email="i@ex.com", average_score=5.0, scholarship=True)
 
-        # 3. Демонстрация CASCADE
-        print(f"Книг в базе до удаления автора: {db.query(Book).count()}")
-        db.delete(author)
-        db.commit()
-        print(f"Книг в базе после удаления автора (CASCADE): {db.query(Book).count()}")
+    db.add_all([a1, a2, b1, b2, b3, b4, s])
+    db.commit()
 
-    finally:
-        db.close()
+    # Студент читал ТОЛЬКО "Война и мир"
+    rec = ReceivingBook(book_id=b1.id, student_id=s.id, date_of_issue=datetime.datetime.now())
+    db.add(rec)
+    db.commit()
+    db.close()
+    print("Данные для теста загружены.")
 
 
 if __name__ == "__main__":
-    test_new_logic()
+    seed_data()
