@@ -1,101 +1,61 @@
-from flask import Flask, jsonify
-from sqlalchemy import func, extract
+import csv
+import io
+from flask import Flask, request, jsonify
 from db.database import SessionLocal
-from models.library import Book, ReceivingBook, Student
-import datetime
+from models.library import Student
 
 app = Flask(__name__)
-
 app.config['JSON_AS_ASCII'] = False
 
-@app.route('/stats/avg-books-month', methods=['GET'])
-def get_avg_books_per_month():
+
+@app.route('/students/upload', methods=['POST'])
+def upload_students_csv():
     """
-    1. Среднее количество книг, которые студенты брали в этом месяце.
-    Логика: (Общее кол-во выдач за месяц) / (Кол-во уникальных студентов, бравших книги).
+    Профессиональная массовая вставка студентов из CSV.
     """
+    # 1. Проверяем, прикрепил ли пользователь файл
+    if 'file' not in request.files:
+        return jsonify({"error": "Файл не найден в запросе"}), 400
+
+    file = request.files['file']
+
+    if file.filename == '':
+        return jsonify({"error": "Файл не выбран"}), 400
+
     db = SessionLocal()
     try:
-        today = datetime.date.today()
-        # Фильтруем выдачи за текущий месяц и год
-        query = db.query(ReceivingBook).filter(
-            extract('month', ReceivingBook.date_of_issue) == today.month,
-            extract('year', ReceivingBook.date_of_issue) == today.year
-        )
+        # 2. Читаем файл в текстовом режиме без сохранения на диск
+        stream = io.StringIO(file.stream.read().decode("UTF8"), newline=None)
 
-        total_issues = query.count()
-        unique_students = query.distinct(ReceivingBook.student_id).count()
+        # 3. Используем DictReader с разделителем ';'
+        reader = csv.DictReader(stream, delimiter=';')
 
-        avg_value = total_issues / unique_students if unique_students > 0 else 0
+        # Подготавливаем данные (конвертируем типы из строк в нужные форматы)
+        students_to_insert = []
+        for row in reader:
+            students_to_insert.append({
+                "name": row['name'],
+                "surname": row['surname'],
+                "phone": row['phone'],
+                "email": row['email'],
+                "average_score": float(row['average_score']),
+                "scholarship": row['scholarship'].lower() == 'true'
+            })
 
-        return jsonify({
-            "month": today.month,
-            "total_issues": total_issues,
-            "unique_students": unique_students,
-            "average_per_student": round(avg_value, 2)
-        }), 200
-    finally:
-        db.close()
+        # 4. Массовая вставка (Bulk Insert)
+        if students_to_insert:
+            db.bulk_insert_mappings(Student, students_to_insert)
+            db.commit()
+            return jsonify({"message": f"Успешно импортировано {len(students_to_insert)} студентов"}), 201
 
+        return jsonify({"message": "Файл пуст"}), 200
 
-@app.route('/stats/popular-book-high-score', methods=['GET'])
-def get_popular_book_for_smart_students():
-    """
-    2. Самая популярная книга среди студентов со средним баллом > 4.0.
-    """
-    db = SessionLocal()
-    try:
-        # Соединяем выдачи с таблицей студентов для фильтрации по баллу
-        popular_book = db.query(Book.name, func.count(ReceivingBook.id).label('total')) \
-            .join(ReceivingBook, Book.id == ReceivingBook.book_id) \
-            .join(Student, Student.id == ReceivingBook.student_id) \
-            .filter(Student.average_score > 4.0) \
-            .group_by(Book.id) \
-            .order_by(func.count(ReceivingBook.id).desc()) \
-            .first()
-
-        if not popular_book:
-            return jsonify({"message": "Данные не найдены"}), 404
-
-        return jsonify({
-            "book_name": popular_book[0],
-            "times_taken": popular_book[1]
-        }), 200
-    finally:
-        db.close()
-
-
-@app.route('/stats/top-students-year', methods=['GET'])
-def get_top_students_year():
-    db = SessionLocal()
-    try:
-        today = datetime.date.today()
-        top_students = db.query(
-            Student.name,
-            Student.surname,
-            func.count(ReceivingBook.id).label('book_count')
-        ) \
-            .join(ReceivingBook, Student.id == ReceivingBook.student_id) \
-            .filter(extract('year', ReceivingBook.date_of_issue) == today.year) \
-            .group_by(Student.id) \
-            .order_by(func.count(ReceivingBook.id).desc()) \
-            .limit(10) \
-            .all()
-
-        # Формируем список словарей
-        result = [
-            {
-                "student_name": f"{s[0]} {s[1]}",
-                "books_read": s[2]
-            }
-            for s in top_students
-        ]
-
-        # Благодаря app.config['JSON_AS_ASCII'] = False здесь будет кириллица
-        return jsonify(result), 200
+    except Exception as e:
+        db.rollback()
+        return jsonify({"error": f"Ошибка при обработке: {str(e)}"}), 500
     finally:
         db.close()
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(debug=True)
