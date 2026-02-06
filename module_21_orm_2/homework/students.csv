@@ -1,0 +1,4 @@
+name;surname;phone;email;average_score;scholarship
+Алексей;Петров;89001112233;alex@example.com;4.5;True
+Мария;Сидорова;89005556677;maria@example.com;4.9;True
+Дмитрий;Волков;89008889900;dmitry@example.com;3.2;False
