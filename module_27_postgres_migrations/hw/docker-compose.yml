@@ -1,0 +1,47 @@
+version: "3.9"
+
+services:
+
+  db:
+    image: postgres:15
+    container_name: postgres_db
+
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: testdb
+
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./postgres/postgresql.conf:/etc/postgresql/postgresql.conf
+
+    command: postgres -c config_file=/etc/postgresql/postgresql.conf
+
+    networks:
+      - backend
+
+  web:
+    build: ./app
+    container_name: flask_app
+
+    ports:
+      - "8000:8000"
+
+    depends_on:
+      - db
+
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: testdb
+      DB_USER: postgres
+      DB_PASS: postgres
+
+    networks:
+      - backend
+
+networks:
+  backend:
+
+volumes:
+  pg_data:
