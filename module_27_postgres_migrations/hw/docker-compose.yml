@@ -1,0 +1,49 @@
+version: "3.9"
+
+services:
+
+  db:
+    image: postgres:15
+    container_name: skillbox_db
+
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: skillbox_db
+
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./postgres/postgresql.conf:/etc/postgresql/postgresql.conf
+
+    command: postgres -c config_file=/etc/postgresql/postgresql.conf
+
+    ports:
+      - "5432:5432"
+
+    networks:
+      - backend
+
+  web:
+    build: ./app
+    container_name: flask_app
+
+    ports:
+      - "5000:5000"
+
+    depends_on:
+      - db
+
+    environment:
+      DB_HOST: db
+      DB_NAME: skillbox_db
+      DB_USER: postgres
+      DB_PASS: postgres
+
+    networks:
+      - backend
+
+networks:
+  backend:
+
+volumes:
+  pg_data:
