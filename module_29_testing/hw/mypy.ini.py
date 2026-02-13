@@ -1,0 +1,5 @@
+from pydantic import mypy
+
+[mypy]
+python_version = 3.12
+ignore_missing_imports = True

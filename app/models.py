@@ -42,6 +42,6 @@ class Task(BaseItem):
         """Преобразование в словарь."""
         return {
             "id": self.id_num,
-            "title": self.__title,
+            "title": self.title,
             "description": self.__description
         }
