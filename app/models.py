@@ -20,7 +20,7 @@ class Task(BaseItem):
         self,
         id_num: int,
         title: str,
-        description: Optional[str] = None
+        description: Optional[str] = None,
     ) -> None:
         super().__init__(id_num)
         self.__title: str = title
@@ -43,5 +43,5 @@ class Task(BaseItem):
         return {
             "id": self.id_num,
             "title": self.title,
-            "description": self.__description
+            "description": self.__description,
         }

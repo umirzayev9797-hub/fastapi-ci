@@ -21,7 +21,7 @@ async def get_tasks() -> List[Dict[str, Any]]:
 @app.post("/tasks")
 async def create_task(
     title: str,
-    description: Optional[str] = None
+    description: Optional[str] = None,
 ) -> Dict[str, Any]:
     """Создает новую задачу."""
     new_id: int = len(tasks_db) + 1
